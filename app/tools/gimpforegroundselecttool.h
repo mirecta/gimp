@@ -31,6 +31,14 @@ typedef enum  /*< pdb-skip, skip >*/
 } SioxRefinementType;
 
 
+typedef enum 
+{
+    MATTING_STATE_FREE_SELECT       = 0,
+    MATTING_STATE_PAINT_TRIMAP,
+    MATTING_STATE_PREVIEW_MASK,
+} MattingState;
+
+
 #define GIMP_TYPE_FOREGROUND_SELECT_TOOL            (gimp_foreground_select_tool_get_type ())
 #define GIMP_FOREGROUND_SELECT_TOOL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GIMP_TYPE_FOREGROUND_SELECT_TOOL, GimpForegroundSelectTool))
 #define GIMP_FOREGROUND_SELECT_TOOL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GIMP_TYPE_FOREGROUND_SELECT_TOOL, GimpForegroundSelectToolClass))
@@ -52,7 +60,9 @@ struct _GimpForegroundSelectTool
   guint               idle_id;
   GArray             *stroke;
   GList              *strokes;
+  GimpChannel        *trimap;
   GimpChannel        *mask;
+  MattingState        state;
 #if 0
   SioxState          *state;
 #endif
