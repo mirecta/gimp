@@ -724,8 +724,11 @@ gimp_foreground_select_tool_drop_masks(GimpForegroundSelectTool *fg_select,
           fg_select->mask = NULL;
       }
 
-      gimp_display_shell_set_mask (gimp_display_get_shell (display),
+      if (GIMP_IS_DISPLAY (display))
+      {
+        gimp_display_shell_set_mask (gimp_display_get_shell (display),
                                                 NULL, NULL);
+      }
 
       gimp_tool_control_set_tool_cursor        (tool->control,
                                                 GIMP_TOOL_CURSOR_FREE_SELECT);
@@ -813,10 +816,10 @@ gimp_foreground_select_options_notify (GimpForegroundSelectOptions *options,
     {
       GimpTool *tool = GIMP_TOOL (fg_select);
 
-      if (tool->display && fg_select->trimap)
+      if (tool->display && (fg_select->state == MATTING_STATE_PAINT_TRIMAP 
+                          || fg_select->state == MATTING_STATE_PREVIEW_MASK ))
         {
           GimpRGB color;
-
           gimp_foreground_select_options_get_mask_color (options, &color);
           gimp_display_shell_set_mask (gimp_display_get_shell (tool->display),
                                        GIMP_DRAWABLE (fg_select->trimap), &color);
