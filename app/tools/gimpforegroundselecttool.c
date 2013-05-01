@@ -116,6 +116,8 @@ static void   gimp_foreground_select_tool_drop_masks  (GimpForegroundSelectTool 
                                                         GimpDisplay              *display);
 static void   gimp_foreground_select_tool_apply    (GimpForegroundSelectTool *fg_select,
                                                     GimpDisplay              *display);
+static void   gimp_foreground_select_tool_preview    (GimpForegroundSelectTool *fg_select,
+                                                    GimpDisplay              *display);
 
 static void   gimp_foreground_select_tool_stroke   (GimpChannel              *mask,
                                                     FgSelectStroke           *stroke);
@@ -368,7 +370,7 @@ gimp_foreground_select_tool_key_press (GimpTool    *tool,
         case GDK_KEY_KP_Enter:
         case GDK_KEY_ISO_Enter:
           //TODO call preview make  
-          //gimp_foreground_select_tool_apply (fg_select, display);
+          gimp_foreground_select_tool_preview (fg_select, display);
           return TRUE;
 
         case GDK_KEY_Escape:
@@ -737,6 +739,18 @@ gimp_foreground_select_tool_drop_masks(GimpForegroundSelectTool *fg_select,
 
       gimp_tool_control_set_toggled (tool->control, FALSE);
       fg_select->state = MATTING_STATE_FREE_SELECT;
+}
+
+static void 
+gimp_foreground_select_tool_preview (GimpForegroundSelectTool *fg_select,
+                                     GimpDisplay              *display)
+{
+
+
+    
+
+
+    gimp_foreground_select_tool_set_preview (fg_select, display);
 }
 static void
 gimp_foreground_select_tool_apply (GimpForegroundSelectTool *fg_select,
