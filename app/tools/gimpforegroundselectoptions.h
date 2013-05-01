@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef __GIMP_FOREGROUND_SELECT_OPTIONS_H__
 #define __GIMP_FOREGROUND_SELECT_OPTIONS_H__
 
@@ -33,26 +34,39 @@
 typedef struct _GimpForegroundSelectOptions  GimpForegroundSelectOptions;
 typedef GimpSelectionOptionsClass  GimpForegroundSelectOptionsClass;
 
+struct _GimpMattingDynamicWidgets
+{
+    GObject *levels;
+    GObject *active_levels;
+    GObject *iterations;
+};
+
+typedef struct _GimpMattingDynamicWidgets  GimpMattingDynamicWidgets; 
+
+
 struct _GimpForegroundSelectOptions
 {
   GimpSelectionOptions  parent_instance;
 
-  gboolean              contiguous;
-  gboolean              background;
-  gint                  stroke_width;
-  gint                  smoothness;
-  GimpChannelType       mask_color;
-  gboolean              expanded;
-  gdouble               sensitivity[3];
+  GimpMattingDrawMode       draw_mode;
+  gint                      stroke_width;
+  GimpChannelType           mask_color;
+  GimpMattingEngine         engine;
+  gint                      levels;
+  gint                      active_levels;
+  gint                      iterations;
+  GimpMattingDynamicWidgets dynamic_widgets;
 };
 
 
-GType       gimp_foreground_select_options_get_type       (void) G_GNUC_CONST;
+GType       gimp_foreground_select_options_get_type        (void) G_GNUC_CONST;
 
-GtkWidget * gimp_foreground_select_options_gui            (GimpToolOptions             *tool_options);
+GtkWidget * gimp_foreground_select_options_gui             (GimpToolOptions             *tool_options);
 
-void        gimp_foreground_select_options_get_mask_color (GimpForegroundSelectOptions *options,
-                                                           GimpRGB                     *color);
+void        gimp_foreground_select_options_get_mask_color  (GimpForegroundSelectOptions *options,
+                                                            GimpRGB                     *color);
+gdouble     gimp_foreground_select_options_get_opacity     (GimpForegroundSelectOptions *options);
 
 
 #endif /* __GIMP_FOREGROUND_SELECT_OPTIONS_H__ */
+
