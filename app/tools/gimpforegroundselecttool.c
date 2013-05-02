@@ -663,26 +663,26 @@ gimp_foreground_select_tool_set_trimap(GimpForegroundSelectTool *fg_select,
 
   options = GIMP_FOREGROUND_SELECT_TOOL_GET_OPTIONS (tool);
 
-      GimpRGB color;
+  GimpRGB color;
 
 
-      gimp_foreground_select_options_get_mask_color (options, &color);
-      gimp_display_shell_set_mask (gimp_display_get_shell (display),
-                                   GIMP_DRAWABLE (fg_select->trimap), &color);
+  gimp_foreground_select_options_get_mask_color (options, &color);
+  gimp_display_shell_set_mask (gimp_display_get_shell (display),
+                               GIMP_DRAWABLE (fg_select->trimap), &color);
 
-      gimp_tool_control_set_tool_cursor        (tool->control,
-                                                GIMP_TOOL_CURSOR_PAINTBRUSH);
-      gimp_tool_control_set_toggle_tool_cursor (tool->control,
-                                                GIMP_TOOL_CURSOR_PAINTBRUSH);
+  gimp_tool_control_set_tool_cursor        (tool->control,
+                                            GIMP_TOOL_CURSOR_PAINTBRUSH);
+  gimp_tool_control_set_toggle_tool_cursor (tool->control,
+                                            GIMP_TOOL_CURSOR_PAINTBRUSH);
 
-      gimp_tool_control_set_toggled (tool->control, FALSE);
+  gimp_tool_control_set_toggled (tool->control, FALSE);
 
-      fg_select->state = MATTING_STATE_PAINT_TRIMAP;
+  fg_select->state = MATTING_STATE_PAINT_TRIMAP;
 }
 
 static void 
 gimp_foreground_select_tool_set_preview(GimpForegroundSelectTool *fg_select,
-                                       GimpDisplay              *display)
+                                       GimpDisplay               *display)
 {
   g_return_if_fail (fg_select->mask != NULL);
   
@@ -745,12 +745,101 @@ static void
 gimp_foreground_select_tool_preview (GimpForegroundSelectTool *fg_select,
                                      GimpDisplay              *display)
 {
+  GimpTool                    *tool    = GIMP_TOOL (fg_select);
+  GimpForegroundSelectOptions *options = GIMP_FOREGROUND_SELECT_TOOL_GET_OPTIONS (tool);
+  GimpImage                   *image   = gimp_display_get_image (display);
+  GimpDrawable                *drawable = gimp_image_get_active_drawable (image);
+  GeglNode                    *gegl, *matting_node;
+  GeglNode                    *input_image, *input_trimap, *output_mask;
+  GeglBuffer                  *buffer;
+  GimpProgress                *progress;
+  GeglProcessor               *processor;
+  gdouble                     value;
 
+  if (fg_select->mask)
+  {
+      g_object_unref (fg_select->mask);
+      fg_select->mask = NULL;
+  }
+  
 
+  progress = gimp_progress_start (GIMP_PROGRESS (fg_select),
+                                  _("Computing alpha of unknown pixels"), FALSE);
+  
+  
+  
+  
+  gegl = gegl_node_new ();
+
+  g_printf("input trimap\n");
+  input_trimap = gegl_node_new_child (gegl,
+                                      "operation", "gegl:buffer-source",
+                                      "buffer", gimp_drawable_get_buffer(
+                                                GIMP_DRAWABLE (fg_select->trimap)),
+                                      NULL);
+  g_printf("input image\n");
+  input_image = gegl_node_new_child (gegl,
+                                      "operation", "gegl:buffer-source",
+                                      "buffer", gimp_drawable_get_buffer (drawable),
+                                      NULL);
+  g_printf("output mask\n");
+  output_mask = gegl_node_new_child (gegl,
+                                      "operation", "gegl:buffer-sink",
+                                      "buffer", &buffer,
+                                      "format", NULL,
+                                      NULL);
+  matting_node = gegl_node_new_child (gegl,
+                                      "operation", "gegl:matting-global",
+                                      "iterations", options->iterations,
+                                      NULL);
+/*
+  matting_node = gegl_node_new_child (gegl,
+                                      "operation", "gegl:matting-levin",
+                                      "levels", options->levels,
+                                      "active_levels", options->active_levels,
+                                      NULL);
+*/
+  gegl_node_connect_to (input_image, "output",
+                        matting_node, "input");
+  
+  gegl_node_connect_to (input_trimap, "output",
+                        matting_node, "aux");
+  
+  gegl_node_connect_to (matting_node, "output",
+                        output_mask, "input");
+  
+
+  
+  processor = gegl_node_new_processor (output_mask, NULL);
+
+  while (gegl_processor_work (processor, &value))
+    {
+      if (progress)
+        gimp_progress_set_value (progress, value);
+    }
+
+  if (progress)
+    gimp_progress_end (progress);
+
+  g_object_unref (processor);
+  
+  
     
+  fg_select->mask = gimp_channel_new_from_buffer(buffer, image, "preview-mask", NULL);
+  
+  
+
+  
+  gimp_foreground_select_tool_set_preview (fg_select, display);
+  g_object_unref (gegl);
 
 
-    gimp_foreground_select_tool_set_preview (fg_select, display);
+  if (buffer)
+  {
+      g_object_unref (buffer);
+  }
+
+
 }
 static void
 gimp_foreground_select_tool_apply (GimpForegroundSelectTool *fg_select,
@@ -830,13 +919,15 @@ gimp_foreground_select_options_notify (GimpForegroundSelectOptions *options,
     {
       GimpTool *tool = GIMP_TOOL (fg_select);
 
-      if (tool->display && (fg_select->state == MATTING_STATE_PAINT_TRIMAP 
-                          || fg_select->state == MATTING_STATE_PREVIEW_MASK ))
-        {
-          GimpRGB color;
-          gimp_foreground_select_options_get_mask_color (options, &color);
-          gimp_display_shell_set_mask (gimp_display_get_shell (tool->display),
-                                       GIMP_DRAWABLE (fg_select->trimap), &color);
-        }
+      if (tool->display){
+          if(fg_select->state == MATTING_STATE_PAINT_TRIMAP)
+          {
+            gimp_foreground_select_tool_set_trimap (fg_select, tool->display);
+          }
+          if(fg_select->state == MATTING_STATE_PREVIEW_MASK )
+          { 
+            gimp_foreground_select_tool_set_preview(fg_select, tool->display);  
+          }
+      }
     }
 }
