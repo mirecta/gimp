@@ -90,25 +90,25 @@ gimp_foreground_select_options_class_init (GimpForegroundSelectOptionsClass *kla
   /*  override the antialias default value from GimpSelectionOptions  */
 
   GIMP_CONFIG_INSTALL_PROP_ENUM (object_class, PROP_DRAW_MODE,
-                                    "draw-mode",
-                                    N_("Paint over areas to mark color values for "
-                                       "inclusion or exclusion from selection"),
-                                    GIMP_TYPE_MATTING_DRAW_MODE,
-                                    GIMP_MATTING_DRAW_MODE_FOREGROUND,
-                                    GIMP_PARAM_STATIC_STRINGS);
+                                 "draw-mode",
+                                 N_("Paint over areas to mark color values for "
+                                 "inclusion or exclusion from selection"),
+                                 GIMP_TYPE_MATTING_DRAW_MODE,
+                                 GIMP_MATTING_DRAW_MODE_FOREGROUND,
+                                 GIMP_PARAM_STATIC_STRINGS);
   
   GIMP_CONFIG_INSTALL_PROP_ENUM (object_class, PROP_ENGINE,
-                                    "engine",
-                                    N_("Engine of matting operation "),
-                                    GIMP_TYPE_MATTING_ENGINE,
-                                    GIMP_MATTING_ENGINE_MATTING_GLOBAL,
-                                    GIMP_PARAM_STATIC_STRINGS);
+                                 "engine",
+                                 N_("Engine of matting operation "),
+                                 GIMP_TYPE_MATTING_ENGINE,
+                                 GIMP_MATTING_ENGINE_MATTING_GLOBAL,
+                                 GIMP_PARAM_STATIC_STRINGS);
   
-  GIMP_CONFIG_INSTALL_PROP_INT (object_class, PROP_STROKE_WIDTH,
-                                "stroke-width",
-                                N_("Size of the brush used for refinements"),
-                                1, 6000, 10,
-                                GIMP_PARAM_STATIC_STRINGS);
+  GIMP_CONFIG_INSTALL_PROP_INT  (object_class, PROP_STROKE_WIDTH,
+                                 "stroke-width",
+                                 N_("Size of the brush used for refinements"),
+                                 1, 6000, 10,
+                                 GIMP_PARAM_STATIC_STRINGS);
 
 
   GIMP_CONFIG_INSTALL_PROP_ENUM (object_class, PROP_MASK_COLOR,
@@ -118,21 +118,21 @@ gimp_foreground_select_options_class_init (GimpForegroundSelectOptionsClass *kla
                                  GIMP_BLUE_CHANNEL,
                                  GIMP_PARAM_STATIC_STRINGS);
   
-  GIMP_CONFIG_INSTALL_PROP_INT (object_class, PROP_LEVELS,
-                                "levels",
-                                N_("Param for matting-levin"),
-                                1, 10, 2,
-                                GIMP_PARAM_STATIC_STRINGS);
-  GIMP_CONFIG_INSTALL_PROP_INT (object_class, PROP_ACTIVE_LEVELS,
-                                "active-levels",
-                                N_("Param for matting-levin"),
-                                1, 10, 2,
-                                GIMP_PARAM_STATIC_STRINGS);
-  GIMP_CONFIG_INSTALL_PROP_INT (object_class, PROP_ITERATIONS,
-                                "iterations",
-                                N_("param for matting-global"),
-                                1, 10, 2,
-                                GIMP_PARAM_STATIC_STRINGS);
+  GIMP_CONFIG_INSTALL_PROP_INT  (object_class, PROP_LEVELS,
+                                 "levels",
+                                 N_("Param for matting-levin"),
+                                 1, 10, 2,
+                                 GIMP_PARAM_STATIC_STRINGS);
+  GIMP_CONFIG_INSTALL_PROP_INT  (object_class, PROP_ACTIVE_LEVELS,
+                                 "active-levels",
+                                 N_("Param for matting-levin"),
+                                 1, 10, 2,
+                                 GIMP_PARAM_STATIC_STRINGS);
+  GIMP_CONFIG_INSTALL_PROP_INT  (object_class, PROP_ITERATIONS,
+                                 "iterations",
+                                 N_("param for matting-global"),
+                                 1, 10, 2,
+                                 GIMP_PARAM_STATIC_STRINGS);
 
 
 }
@@ -148,11 +148,10 @@ gimp_foreground_select_options_set_property (GObject      *object,
                                              const GValue *value,
                                              GParamSpec   *pspec)
 {
-    //TODO https://github.com/rggjan/Gimp-Matting/compare/master...new_layer
   GimpForegroundSelectOptions *options = GIMP_FOREGROUND_SELECT_OPTIONS (object);
 
   switch (property_id)
-    {
+  {
     case PROP_DRAW_MODE:
       options->draw_mode = g_value_get_enum (value);
       break;
@@ -184,7 +183,7 @@ gimp_foreground_select_options_set_property (GObject      *object,
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
-    }
+  }
 }
 
 static void
@@ -196,7 +195,7 @@ gimp_foreground_select_options_get_property (GObject    *object,
   GimpForegroundSelectOptions *options = GIMP_FOREGROUND_SELECT_OPTIONS (object);
 
   switch (property_id)
-    {
+  {
 
     case PROP_DRAW_MODE:
       g_value_set_enum (value, options->draw_mode);
@@ -229,7 +228,7 @@ gimp_foreground_select_options_get_property (GObject    *object,
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
-    }
+  }
 }
 
 GtkWidget *
@@ -280,16 +279,15 @@ gimp_foreground_select_options_gui (GimpToolOptions *tool_options)
                         tool_options);
   
   gimp_help_set_help_data (button,
-                               _("Reset stroke width native size"), NULL);
-
-  
+                           _("Reset stroke width native size"), NULL);
 
   /*  mask color */
   frame = gimp_frame_new (_("Preview color:"));
   gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
   gtk_widget_show (frame);
 
-  combo = gimp_prop_enum_combo_box_new (config, "mask-color", GIMP_RED_CHANNEL, GIMP_GRAY_CHANNEL);
+  combo = gimp_prop_enum_combo_box_new (config, "mask-color", 
+                                        GIMP_RED_CHANNEL, GIMP_GRAY_CHANNEL);
   gtk_container_add (GTK_CONTAINER (frame), combo);
   gtk_widget_show (combo);
   
@@ -304,7 +302,6 @@ gimp_foreground_select_options_gui (GimpToolOptions *tool_options)
 
 
   /*  parameters  */
-
 
   table = gtk_table_new (3, 3, FALSE);
   gtk_table_set_col_spacings (GTK_TABLE (table), 2);
@@ -416,7 +413,7 @@ gimp_foreground_select_options_get_mask_color (GimpForegroundSelectOptions *opti
   g_return_if_fail (color != NULL);
 
   switch (options->mask_color)
-    {
+  {
     case GIMP_RED_CHANNEL:
       gimp_rgba_set (color, 1, 0, 0, 0.7);
       break;
@@ -436,6 +433,6 @@ gimp_foreground_select_options_get_mask_color (GimpForegroundSelectOptions *opti
     default:
       g_warn_if_reached ();
       break;
-    }
+  }
 }
 
