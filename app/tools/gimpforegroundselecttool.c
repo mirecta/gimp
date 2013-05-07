@@ -676,6 +676,7 @@ gimp_foreground_select_tool_set_preview(GimpForegroundSelectTool *fg_select,
   GimpRGB color;
 
   gimp_foreground_select_options_get_mask_color (options, &color);
+  gimp_rgb_set_alpha (&color, 1.0); 
   gimp_display_shell_set_mask (gimp_display_get_shell (display),
                                GIMP_DRAWABLE (fg_select->mask), &color);
 
